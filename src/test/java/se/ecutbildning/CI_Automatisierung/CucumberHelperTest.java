@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 class CucumberHelperTest {
@@ -150,7 +151,7 @@ class CucumberHelperTest {
     // ***Passwords***
     
     @Test
-    public void twoPasswordsAreNotTheSame() {
+    public void twoPasswordsAreNotTheSame() throws TooShortPasswordException {
 	// execute
 	String password = helper.getPassword(8);
 	String password2 = helper.getPassword(8);
@@ -159,44 +160,46 @@ class CucumberHelperTest {
     }
     
     @Test
-    public void passwordMinLength() {
+    public void passwordMinLength() throws TooShortPasswordException {
 	// execute
 	String password = helper.getPassword(8);
+	System.out.println(password);
 	// assert
-	assertFalse(validatePassword(password));
+	assertTrue(validatePassword(password));	
     }
     
     @Test
-    public void generatedPasswordContainsUpperCase() {
+    public void generatedPasswordContainsUpperCase() throws TooShortPasswordException {
 	// execute
 	String password = helper.getPassword(8);
 	// assert
 	assertTrue(oneIsUpperCase(password));
     }
     
-    @Test
-    public void generatedPasswordContainsLowerCase() {
+    @RepeatedTest(100)
+    public void generatedPasswordContainsLowerCase() throws TooShortPasswordException {
 	// execute
 	String password = helper.getPassword(8);
 	// assert
-	System.out.println(password);
+	//System.out.println(password);
 	assertTrue(oneIsLowerCase(password));
     }
     
-    @Test
-    public void generatedPasswordContainsNumber() {
+    @RepeatedTest(100)
+    public void generatedPasswordContainsNumber() throws TooShortPasswordException {
 	// execute
 	String password = helper.getPassword(8);
 	// assert
 	assertTrue(oneIsNumber(password));
     }
     
-    @Test
-    public void generatedPasswordContainsSpecialChar() {
+    @RepeatedTest(100)
+    public void generatedPasswordContainsSpecialChar() throws TooShortPasswordException {
 	// execute
 	String password = helper.getPassword(8);
 	// assert
 	assertTrue(oneIsSpecial(password));
+	//System.out.println(password);
     }
     
 
