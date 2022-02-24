@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -94,7 +95,7 @@ class CucumberHelperTest {
 	// setup
 	String password = "Ab4cdefg57#";
 	// execute
-	boolean actual = CucumberHelperTest.validatePassword(password);
+	boolean actual = CucumberHelperTest.oneIsNumber(password);
 	// assert
 	assertTrue(actual);
     }
@@ -115,7 +116,7 @@ class CucumberHelperTest {
 	// setup
 	int wordLength = 8;
 	// execute
-	String actual = helper.getWord(wordLength);
+	String actual = helper.getEmailAddress();
 	// assert
 	assertTrue(actual.length() >= wordLength);
     }
@@ -123,27 +124,30 @@ class CucumberHelperTest {
     @Test
     public void wordHasLessThanRequestedMinimumLength() {
 	// setup
-	int minWordLength = 8;
+	int minWordLength = 5;
 	// execute
-	String actual = helper.getWord(7);
+	String actual = "act@lookahead.com";//helper.getEmailAddress();
+	//actual = actual.substring(1, 7);
 	// assert
-	assertFalse(actual.length() >= minWordLength);
+	assertFalse(StringUtils.substringBefore(actual, "@").length() >= minWordLength);
+	//System.out.println("String length: " + StringUtils.substringBefore("@", actual).length());
     }
 
     @Test
     public void wordIsMadeOfLetters() {
 	// execute
-	String actual = helper.getWord(8);
+	String actual = helper.getEmailAddress();
 	// assert
-	assertTrue(actual.matches("\\p{L}+"));
+	//actual = actual.substring(1, 8);
+	assertTrue(StringUtils.substringBefore(actual, "@").matches("\\p{L}+"));
 	// assertTrue(actual.chars().allMatch(Character::isLetter));
     }
 
     @Test
     public void twoWordsAreNotTheSame() {
 	// execute
-	String word = helper.getWord(5);
-	String word2 = helper.getWord(5);
+	String word = helper.getEmailAddress();
+	String word2 = helper.getEmailAddress();
 	// assert
 	assertFalse(word.equals(word2));
     }
@@ -166,6 +170,15 @@ class CucumberHelperTest {
 	System.out.println(password);
 	// assert
 	assertTrue(validatePassword(password));	
+    }
+    
+    @Test
+    public void passwordHasExactLength() throws TooShortPasswordException {
+	// execute
+	String password = helper.getPassword(25);
+	// assert
+	System.out.println("password " + password + " has a length of " + password.length());
+	assertTrue(password.length() == 25);	
     }
     
     @Test

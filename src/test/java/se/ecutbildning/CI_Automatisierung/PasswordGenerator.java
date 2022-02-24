@@ -16,14 +16,10 @@ public class PasswordGenerator implements Supplier<String> {
 	String alphabet;
 	String password;
 	
-	public PasswordGenerator() {
-	}
-	
-	public PasswordGenerator(int noOfChars) throws TooShortPasswordException {
-	    if(noOfChars <8) {
-		throw new TooShortPasswordException();
-	    }
-	    String pwString = getRandomSpecialCharacters(2).concat(getRandomNumbers(2))
+	public PasswordGenerator()  {
+	    
+	    String pwString = getRandomSpecialCharacters(2)
+		    .concat(getRandomNumbers(2))
 	            .concat(getRandomAlphabet(2, true))
 	            .concat(getRandomAlphabet(2, false))
 	            .concat(getRandomCharacters(2));
@@ -32,7 +28,7 @@ public class PasswordGenerator implements Supplier<String> {
 		    			.mapToObj(data -> (char) data)
 		    			.collect(Collectors.toList());
 	    Collections.shuffle(pwChars);
-	    password = pwChars.stream()
+	    alphabet = pwChars.stream()
 	            	.collect(StringBuilder::new, 
 	            		StringBuilder::append, 
 	            		StringBuilder::append)
@@ -75,11 +71,9 @@ public class PasswordGenerator implements Supplier<String> {
 
 	@Override
 	public String get() {
-	    /*
-	     * char[] letters = alphabet.toCharArray(); return "" +
-	     * letters[rnd.nextInt(letters.length)];
-	     */
-	    return password;
+	    
+	      char[] password = alphabet.toCharArray(); 
+	      return "" + password[rnd.nextInt(password.length)];
 	}
 
 	public static void main(String[] args) {

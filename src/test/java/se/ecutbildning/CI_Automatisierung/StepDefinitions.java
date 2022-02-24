@@ -6,12 +6,15 @@ import java.time.Duration;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 
+import io.cucumber.java.Before;
+import io.cucumber.java.BeforeAll;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -22,30 +25,34 @@ import io.cucumber.java.en.When;
  * */
 
 public class StepDefinitions {
+    
+    CucumberHelper helper;
 
     WebDriver driver = new FirefoxDriver(new FirefoxOptions().setHeadless(false));
     String url;
 
     // @BeforeEach
-    // @BeforeAll
+    @Before
     public void setUp() {
 	// d = new ChromeDriver(new ChromeOptions().setHeadless(true));
 	System.setProperty("webdriver.gecko.driver", "/usr/local/bin/geckodriver");
 	driver = new FirefoxDriver();
+	helper = new CucumberHelper();
     }
 
     @Given("I want to register as new user")
-    public void i_want_to_register_as_new_user() {
+    public void i_want_to_register_as_new_user() throws TooShortPasswordException {
 
 	driver.manage().timeouts().implicitlyWait(Duration.ofMillis(1000L));
 	//url = String.format("https://login.mailchimp.com/signup/");
-	url = String.format("https://us20.admin.mailchimp.com/signup/setup/");
+	url = String.format("https://us20.admin.mailchimp.com/signup/");
 	driver.get(url);
 	// driver.get("https://login.mailchimp.com/signup/");
 	driver.manage().window().setSize(new Dimension(829, 854));
-	driver.findElement(By.id("email")).sendKeys("bei60231@qopow.com");
-	driver.findElement(By.id("username")).sendKeys("))Sd9sdkejrkejr");
-	driver.findElement(By.id("password")).sendKeys("123456qwertyASLDKSLSDFG%");
+	String theEmail = helper.getEmailAddress();
+	driver.findElement(By.id("email")).sendKeys(theEmail);
+	driver.findElement(By.id("new_username")).sendKeys(StringUtils.substringBefore(theEmail, "@"));
+	driver.findElement(By.id("new_password")).sendKeys(helper.getPassword(9));
 
 	driver.findElement(By.id("marketing_newsletter")).click();
 	driver.findElement(By.id("onetrust-reject-all-handler")).click();
