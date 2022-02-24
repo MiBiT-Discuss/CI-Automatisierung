@@ -52,7 +52,7 @@ public class StepDefinitions {
 	String theEmail = helper.getEmailAddress();
 	driver.findElement(By.id("email")).sendKeys(theEmail);
 	driver.findElement(By.id("new_username")).sendKeys(StringUtils.substringBefore(theEmail, "@"));
-	driver.findElement(By.id("new_password")).sendKeys(helper.getPassword(9));
+	driver.findElement(By.id("new_password")).sendKeys(helper.getPassword());
 
 	driver.findElement(By.id("marketing_newsletter")).click();
 	driver.findElement(By.id("onetrust-reject-all-handler")).click();

@@ -1,7 +1,5 @@
 package se.ecutbildning.CI_Automatisierung;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class CucumberHelper {
     
@@ -11,8 +9,9 @@ public class CucumberHelper {
 	return emailCreator.getEmailAddress();
     }
     
-    public String getPassword() {
-   	/*
+ 
+    public String getPassword() throws TooShortPasswordException {
+	/*
    	 * Rules:
    	 * One lowercase character
    	 * One uppercase character
@@ -21,12 +20,7 @@ public class CucumberHelper {
    	 * 8 characters minimum
    	 * 50 characters maximum
    	 * */
-   	
-   	return "A43948SJKWJWj%sdd";
-       }
-    public String getPassword(int length) throws TooShortPasswordException {
-	return Stream.generate(new PasswordGenerator())
-		.limit(length).collect(Collectors.joining());
+	return new PasswordGenerator().get();
     }
 
 }

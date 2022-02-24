@@ -86,7 +86,7 @@ class CucumberHelperTest {
 	String password = "MMDDHHFUEIiaiu4isiduisudksdh";
 	// execute
 	boolean actual = CucumberHelperTest.validatePassword(password);
-	// assert
+	// assertx
 	assertFalse(actual);
     }
 
@@ -157,8 +157,8 @@ class CucumberHelperTest {
     @Test
     public void twoPasswordsAreNotTheSame() throws TooShortPasswordException {
 	// execute
-	String password = helper.getPassword(8);
-	String password2 = helper.getPassword(8);
+	String password = helper.getPassword();
+	String password2 = helper.getPassword();
 	// assert
 	assertFalse(password.equals(password2));
     }
@@ -166,25 +166,16 @@ class CucumberHelperTest {
     @Test
     public void passwordMinLength() throws TooShortPasswordException {
 	// execute
-	String password = helper.getPassword(8);
+	String password = helper.getPassword() ;
 	System.out.println(password);
 	// assert
 	assertTrue(validatePassword(password));	
     }
     
     @Test
-    public void passwordHasExactLength() throws TooShortPasswordException {
-	// execute
-	String password = helper.getPassword(25);
-	// assert
-	System.out.println("password " + password + " has a length of " + password.length());
-	assertTrue(password.length() == 25);	
-    }
-    
-    @Test
     public void generatedPasswordContainsUpperCase() throws TooShortPasswordException {
 	// execute
-	String password = helper.getPassword(8);
+	String password = helper.getPassword() ;
 	// assert
 	assertTrue(oneIsUpperCase(password));
     }
@@ -192,7 +183,7 @@ class CucumberHelperTest {
     @RepeatedTest(100)
     public void generatedPasswordContainsLowerCase() throws TooShortPasswordException {
 	// execute
-	String password = helper.getPassword(8);
+	String password = helper.getPassword() ;
 	// assert
 	//System.out.println(password);
 	assertTrue(oneIsLowerCase(password));
@@ -201,7 +192,7 @@ class CucumberHelperTest {
     @RepeatedTest(100)
     public void generatedPasswordContainsNumber() throws TooShortPasswordException {
 	// execute
-	String password = helper.getPassword(8);
+	String password = helper.getPassword() ;
 	// assert
 	assertTrue(oneIsNumber(password));
     }
@@ -209,7 +200,7 @@ class CucumberHelperTest {
     @RepeatedTest(100)
     public void generatedPasswordContainsSpecialChar() throws TooShortPasswordException {
 	// execute
-	String password = helper.getPassword(8);
+	String password = helper.getPassword() ;
 	// assert
 	assertTrue(oneIsSpecial(password));
 	//System.out.println(password);

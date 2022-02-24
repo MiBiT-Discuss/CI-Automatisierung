@@ -4,16 +4,16 @@ import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Supplier;
+/*import java.util.function.Supplier;*/
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+/*import java.util.stream.Stream;*/
 
 import org.apache.commons.text.RandomStringGenerator;
 
-public class PasswordGenerator implements Supplier<String> {
+public class PasswordGenerator /* implements Supplier<String> */ {
 	
 	Random rnd = new SecureRandom();
-	String alphabet;
+	//String alphabet;
 	String password;
 	
 	public PasswordGenerator()  {
@@ -28,7 +28,7 @@ public class PasswordGenerator implements Supplier<String> {
 		    			.mapToObj(data -> (char) data)
 		    			.collect(Collectors.toList());
 	    Collections.shuffle(pwChars);
-	    alphabet = pwChars.stream()
+	    password = pwChars.stream()
 	            	.collect(StringBuilder::new, 
 	            		StringBuilder::append, 
 	            		StringBuilder::append)
@@ -69,20 +69,14 @@ public class PasswordGenerator implements Supplier<String> {
 	    return specCharGen.generate(length);
 	}
 
-	@Override
+	/* @Override */
 	public String get() {
-	    
-	      char[] password = alphabet.toCharArray(); 
-	      return "" + password[rnd.nextInt(password.length)];
+	      return password;
 	}
-
-	public static void main(String[] args) {
-		String word = Stream.generate(new PasswordGenerator())
-				.limit(30).collect(Collectors.joining());
-		String word2 = Stream.generate(new PasswordGenerator())
-			.limit(30).collect(Collectors.joining());
-		System.out.println(word + " / " + word2);
-		System.out.println("word equals word2 is " + word.equals(word2));
-
+	
+	public static void main (String[] args) {
+	    PasswordGenerator pg = new PasswordGenerator();
+	    String thePass = pg.get();
+	    System.out.println(thePass + " has a length of " + thePass.length());
 	}
 }
