@@ -23,6 +23,18 @@ public class EmailAddressCreator {
 	return email.toString();
     }
     
+    public String getEmailAddressWithNameLength(int nameLength) {
+	StringBuilder email = new StringBuilder();
+	email.append(Stream.generate(new WordGenerator())
+		.limit(nameLength)
+		.collect(Collectors.joining()
+			));
+	email.append("@");
+	email.append(getDomain().toString()+ ".");
+	email.append(getTopDomain().toString());
+	return email.toString();
+    }
+    
     private Domain getDomain() {
 	int selection = rnd.nextInt(Domain.values().length);
 	return Domain.values()[selection];

@@ -2,9 +2,7 @@ package se.ecutbildning.CI_Automatisierung;
 
 public enum TopDomain {
     
-    COM,
-    ORG, 
-    NET;
+    COM;
     
     @Override
     public String toString() {

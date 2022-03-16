@@ -9,8 +9,12 @@ public class CucumberHelper {
 	return emailCreator.getEmailAddress();
     }
     
+    public String getEmailAddressWithANameLengthOf(int nameLength) {
+   	return emailCreator.getEmailAddressWithNameLength(nameLength);
+       }
+    
  
-    public String getPassword() throws TooShortPasswordException {
+    public String getPassword() {
 	/*
    	 * Rules:
    	 * One lowercase character
