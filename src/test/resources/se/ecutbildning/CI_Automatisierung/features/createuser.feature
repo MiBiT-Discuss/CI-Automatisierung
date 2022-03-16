@@ -19,11 +19,14 @@
 Feature: register user
   I register as user
 
-  @single
   Scenario: Register new user
     Given I register as new user
     When I complete registration
     Then I get the message "Check your email"
+
+  Scenario: a new user forgets entering the email adress when registering
+    Given I want to register as new user with a 0 long name
+    When I complete registration
 
   Scenario Outline: a new user with a long name attempts registration
     Given I want to register as new user with a <length> long name
@@ -40,5 +43,9 @@ Feature: register user
     Given I register as new user
     And I complete registration
     And I register as the same user
-    And I complete registration
+    When I complete registration
     Then I get the error message "Another user with this username already exists. Maybe it's your evil twin. Spooky."
+
+  Scenario: a new user forgets entering the email adress when registering
+    Given I want to register as new user with a 0 long name
+    Then send button is disabled

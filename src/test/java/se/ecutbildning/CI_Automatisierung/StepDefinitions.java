@@ -76,6 +76,21 @@ public class StepDefinitions {
 	wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("onetrust-group-container")));
 	createAccount.click();
     }
+    
+    @Then("send button is disabled")
+    public void send_button_is_disabled() {
+	
+	Wait<WebDriver> wait = new FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(30))
+		.pollingEvery(Duration.ofMillis(250)).ignoring(ElementClickInterceptedException.class);
+	
+	WebElement createAccount = wait.until(new Function<WebDriver, WebElement>() {
+	    public WebElement apply(WebDriver driver) {
+		return driver.findElement(By.id("create-account"));
+	    }
+	});
+	wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("onetrust-group-container")));
+	assertThat(!(createAccount.isEnabled()));
+    }
 
     @Then("I get the message {string}")
     public void i_get_the_message(String message) {

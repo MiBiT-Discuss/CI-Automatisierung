@@ -152,6 +152,14 @@ class CucumberHelperTest {
 	assertFalse(word.equals(word2));
     }
     
+    @Test
+    public void wordsOfZeroLengthRendersEmtpyString() {
+	// execute
+	String word = helper.getEmailAddressWithANameLengthOf(0);
+	// assert
+	assertTrue(word.equals(""));
+    }
+    
     // ***Passwords***
     
     @Test

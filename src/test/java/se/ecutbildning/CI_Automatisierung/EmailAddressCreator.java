@@ -29,6 +29,8 @@ public class EmailAddressCreator {
 		.limit(nameLength)
 		.collect(Collectors.joining()
 			));
+	if(email.length() == 0)
+	    return "";
 	email.append("@");
 	email.append(getDomain().toString()+ ".");
 	email.append(getTopDomain().toString());
