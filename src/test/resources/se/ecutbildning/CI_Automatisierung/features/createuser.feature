@@ -1,4 +1,4 @@
-#Author: mibit@protonmail.com
+#Author: mibit@protonmail.com0
 #Keywords Summary : mailchimp register functionality
 #Feature: mailchimp register user
 #Scenario: Business rule through list of steps with arguments.
@@ -24,28 +24,37 @@ Feature: register user
     When I complete registration
     Then I get the message "Check your email"
 
-  Scenario: a new user forgets entering the email adress when registering
-    Given I want to register as new user with a 0 long name
-    When I complete registration
-
-  Scenario Outline: a new user with a long name attempts registration
+  Scenario Outline: Registration with a long name
     Given I want to register as new user with a <length> long name
     When I complete registration
     Then I get the message <message>
 
     Examples: 
-      | length | message                                  |
-      |    101 | "Please check your entry and try again." |
-      |    100 | "Check your email"                       |
-      |     99 | "Check your email"                       |
+      | length | message            |
+      |     99 | "Check your email" |
+      |    100 | "Check your email" |
+      |     50 | "Check your email" |
+
+  Scenario Outline: Registration with a far too long name
+    Given I want to register as new user with a <length> long name
+    When I complete registration
+    Then I get the error message "Please check your entry and try again."
+
+    Examples: 
+      | length |
+      |    101 |
+      |    105 |
+      |    134 |
 
   Scenario: Register already registered user
     Given I register as new user
     And I complete registration
     And I register as the same user
     When I complete registration
-    Then I get the error message "Another user with this username already exists. Maybe it's your evil twin. Spooky."
+    Then I get the error message "Please check your entry and try again."
+#    Then I get the error message "Another user with this username already exists. Maybe it's your evil twin. Spooky."
 
   Scenario: a new user forgets entering the email adress when registering
     Given I want to register as new user with a 0 long name
-    Then send button is disabled
+    When I complete registration
+    Then I get the error message "Please check your entry and try again."

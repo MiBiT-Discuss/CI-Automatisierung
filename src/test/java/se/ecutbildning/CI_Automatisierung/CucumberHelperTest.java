@@ -27,7 +27,8 @@ class CucumberHelperTest {
 	String password = null;
 	// execute
 	// assert
-	assertThatNullPointerException().isThrownBy(() -> CucumberHelperTest.validatePassword(password));
+	assertThatNullPointerException().isThrownBy(() -> 
+	CucumberHelperTest.validatePassword(password));
     }
 
     @Test
@@ -175,7 +176,7 @@ class CucumberHelperTest {
     public void passwordMinLength() throws TooShortPasswordException {
 	// execute
 	String password = helper.getPassword() ;
-	System.out.println(password);
+	//System.out.println(password);
 	// assert
 	assertTrue(validatePassword(password));	
     }
@@ -233,9 +234,6 @@ class CucumberHelperTest {
 	// At least one special character, i e not a number nor a letter
 	Pattern p = Pattern.compile("[\\P{L}&&\\P{N}]");
 	Matcher m = p.matcher(pw);
-	/*
-	 * long count = m.results().count(); return (count != 0);
-	 */
 	return m.find();
     }
 
@@ -247,7 +245,7 @@ class CucumberHelperTest {
     }
 
     private static boolean oneIsUpperCase(String pw) {
-	// At least one uppercase letter that has an lowercase variant
+	// At least one uppercase letter that has a lowercase variant
 	Pattern p = Pattern.compile("\\p{Lu}");
 	Matcher m = p.matcher(pw);
 	return m.find();

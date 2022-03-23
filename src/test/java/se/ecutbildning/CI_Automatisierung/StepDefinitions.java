@@ -1,15 +1,20 @@
 package se.ecutbildning.CI_Automatisierung;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Duration;
-import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.ElementClickInterceptedException;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -33,7 +38,7 @@ import io.cucumber.java.en.When;
 public class StepDefinitions {
 
     CucumberHelper helper = new CucumberHelper();
-    WebDriver driver = new FirefoxDriver(new FirefoxOptions().setHeadless(false));
+    WebDriver newDriver = new FirefoxDriver(new FirefoxOptions().setHeadless(false));
     String url;
     String theEmail;
     // d = new ChromeDriver(new ChromeOptions().setHeadless(true));
@@ -49,10 +54,10 @@ public class StepDefinitions {
 	theEmail = helper.getEmailAddress();
 	fillInRegistrationForm(theEmail);
     }
-    
+
     @And("I register as the same user")
     public void i_register_as_the_same_user() {
-	driver.manage().deleteAllCookies();
+	newDriver.manage().deleteAllCookies();
 	fillInRegistrationForm(theEmail);
     }
 
@@ -65,7 +70,7 @@ public class StepDefinitions {
     @When("I complete registration")
     public void i_complete_registration() {
 
-	Wait<WebDriver> wait = new FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(30))
+	Wait<WebDriver> wait = new FluentWait<WebDriver>(newDriver).withTimeout(Duration.ofSeconds(30))
 		.pollingEvery(Duration.ofMillis(250)).ignoring(ElementClickInterceptedException.class);
 
 	WebElement createAccount = wait.until(new Function<WebDriver, WebElement>() {
@@ -76,50 +81,80 @@ public class StepDefinitions {
 	wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("onetrust-group-container")));
 	createAccount.click();
     }
-    
-    @Then("send button is disabled")
-    public void send_button_is_disabled() {
-	
-	Wait<WebDriver> wait = new FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(30))
-		.pollingEvery(Duration.ofMillis(250)).ignoring(ElementClickInterceptedException.class);
-	
-	WebElement createAccount = wait.until(new Function<WebDriver, WebElement>() {
-	    public WebElement apply(WebDriver driver) {
-		return driver.findElement(By.id("create-account"));
-	    }
-	});
-	wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("onetrust-group-container")));
-	assertThat(!(createAccount.isEnabled()));
-    }
+
+    /*
+     * @Then("send button is disabled") public void send_button_is_disabled() {
+     * 
+     * WebElement createAccount; try { Wait<WebDriver> wait = new
+     * FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(1))
+     * .pollingEvery(Duration.ofMillis(25)).ignoring(
+     * ElementClickInterceptedException.class);
+     * 
+     * createAccount = wait.until(new Function<WebDriver, WebElement>() { public
+     * WebElement apply(WebDriver driver) { return
+     * driver.findElement(By.id("create-account")); } });
+     * wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id(
+     * "onetrust-group-container"))); System.out.println(createAccount.isEnabled());
+     * assertFalse(createAccount.isEnabled()); } catch (TimeoutException te) {
+     * te.printStackTrace(); }
+     * 
+     * }
+     */
 
     @Then("I get the message {string}")
     public void i_get_the_message(String message) {
-	List<WebElement> signupList = driver.findElements(By.cssSelector("#signup-content h1"));
-	
-	if (!(signupList.size() == 0))
-	    assertThat(signupList.get(0).getText().equalsIgnoreCase(message));
+	WebElement signup = null;
+	try {
+	    signup = findBySelector("#signup-content h1");
+	} catch (NoSuchElementException nse) {
+	    nse.printStackTrace();
+	}
+	/*
+	 * System.out.println(signup.getText());
+	 * System.out.println(signup.getText().equalsIgnoreCase(message));
+	 */
+	assertTrue(signup.getText().equalsIgnoreCase(message));
     }
-    
+
     @Then("I get the error message {string}")
     public void i_get_the_error_message(String message) {
-	//List<WebElement> signupList = driver.findElements(By.cssSelector("#signup-content h1"));
-	List<WebElement> nameTooLongList = driver.findElements(By.cssSelector("#av-flash-errors"));
-	
-	if (!(nameTooLongList.size() == 0))
-	    assertThat(nameTooLongList.get(0).getText().equalsIgnoreCase(message));
-	
-	/*
-	 * else { assertThat(findBySelector("#av-flash-errors")
-	 * .getText()).isEqualTo(message); }
-	 */
+
+	// WebElement nameTooLong = findBySelector("#av-flash-errors");
+	Wait<WebDriver> wait = new FluentWait<WebDriver>(newDriver).withTimeout(Duration.ofSeconds(30))
+		.pollingEvery(Duration.ofMillis(250)).ignoring(NoSuchElementException.class);
+
+	WebElement errorMsg = null;
+	try {
+	    errorMsg = wait.until(new Function<WebDriver, WebElement>() {
+		public WebElement apply(WebDriver driver) {
+		    return driver.findElement(By.cssSelector("#av-flash-errors"));
+		}
+	    });
+	} catch (NoSuchElementException nse) {
+	    nse.printStackTrace();
+	}
+	System.out.println(errorMsg.getText());
+	assertTrue(errorMsg.getText().equalsIgnoreCase(message));
+	// assertThat(findBySelector("#av-flash-errors").getText()).isEqualTo(message);
+
     }
 
     private void fillInRegistrationForm(String theEmail) {
-	url = String.format("https://us20.admin.mailchimp.com/signup/");
-	driver.get(url);
-	driver.manage().window().setSize(new Dimension(829, 854));
+	url = String.format("https://login.mailchimp.com/signup/");
+	newDriver.get(url);
+	newDriver.manage().window().setSize(new Dimension(829, 854));
+	
+	if(! (theEmail.isEmpty()) ) {
 	findById("email").sendKeys(theEmail);
 	findById("new_username").sendKeys(StringUtils.substringBefore(theEmail, "@"));
+	} else {
+	    findById("new_username").sendKeys(
+		    			Stream.generate(new WordGenerator())
+		    			.limit(ThreadLocalRandom.current()
+		    			.nextInt(5, 13))
+		    			.collect(Collectors.joining()
+		    			));
+	}
 	findById("new_password").sendKeys(helper.getPassword());
 
 	findById("marketing_newsletter").click();
@@ -127,18 +162,18 @@ public class StepDefinitions {
     }
 
     private WebElement findById(String _id) {
-	return driver.findElement(By.id(_id));
+	return newDriver.findElement(By.id(_id));
     }
 
     private WebElement findBySelector(String _sel) {
-	return driver.findElement(By.cssSelector(_sel));
+	return newDriver.findElement(By.cssSelector(_sel));
     }
 
     @After
     public void tearDown() {
 	theEmail = null;
-	driver.manage().deleteAllCookies();
-	driver.close();
+	newDriver.manage().deleteAllCookies();
+	newDriver.close();
     }
 
 }

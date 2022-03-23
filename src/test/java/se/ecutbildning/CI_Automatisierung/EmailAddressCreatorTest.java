@@ -7,7 +7,7 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 class EmailAddressCreatorTest {
-    
+
     CucumberHelper helper = new CucumberHelper();
 
     @Test
@@ -16,17 +16,19 @@ class EmailAddressCreatorTest {
 	assertThat(email).containsPattern("[a-z]");
 	assertThat(email).doesNotContainPattern("[A-Z]");
     }
+
     @Test
     void addressNotNull() {
 	String email = helper.getEmailAddress();
-	assertThat(!email.isBlank());
+	assertFalse(email.isBlank());
     }
+
     @Test
     void addressContainsAtChar() {
 	String email = helper.getEmailAddress();
 	assertThat(email).contains("@");
     }
-    
+
     @RepeatedTest(100)
     void twoAddressesAreNotTheSame() {
 	String email = helper.getEmailAddress();
