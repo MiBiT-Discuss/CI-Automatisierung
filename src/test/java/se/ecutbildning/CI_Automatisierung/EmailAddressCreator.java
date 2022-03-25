@@ -13,7 +13,7 @@ public class EmailAddressCreator {
 
     public String getEmailAddress() {
 	StringBuilder email = new StringBuilder();
-	email.append(Stream.generate(new WordGenerator())
+	email.append(Stream.generate(new NonSensicalWordGenerator())
 			.limit(ThreadLocalRandom.current().nextInt(5, 13))
 			.collect(Collectors.joining()
 			));
@@ -24,13 +24,15 @@ public class EmailAddressCreator {
     }
     
     public String getEmailAddressWithNameLength(int nameLength) {
+	
+	if(nameLength == 0)
+	    return "";
+	
 	StringBuilder email = new StringBuilder();
-	email.append(Stream.generate(new WordGenerator())
+	email.append(Stream.generate(new NonSensicalWordGenerator())
 		.limit(nameLength)
 		.collect(Collectors.joining()
 			));
-	if(email.length() == 0)
-	    return "";
 	email.append("@");
 	email.append(getDomain().toString()+ ".");
 	email.append(getTopDomain().toString());

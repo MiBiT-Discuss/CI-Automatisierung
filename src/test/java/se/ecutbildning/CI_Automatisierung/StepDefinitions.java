@@ -45,7 +45,7 @@ public class StepDefinitions {
 
     @Before
     public void setUp() {
-	System.setProperty("webdriver.gecko.driver", "/usr/local/bin/geckodriver");
+	//System.setProperty("webdriver.gecko.driver", "/usr/local/bin/geckodriver");
     }
 
     @Given("I register as new user")
@@ -149,7 +149,7 @@ public class StepDefinitions {
 	findById("new_username").sendKeys(StringUtils.substringBefore(theEmail, "@"));
 	} else {
 	    findById("new_username").sendKeys(
-		    			Stream.generate(new WordGenerator())
+		    			Stream.generate(new NonSensicalWordGenerator())
 		    			.limit(ThreadLocalRandom.current()
 		    			.nextInt(5, 13))
 		    			.collect(Collectors.joining()

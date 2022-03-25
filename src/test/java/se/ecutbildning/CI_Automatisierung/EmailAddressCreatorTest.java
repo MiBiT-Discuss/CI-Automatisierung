@@ -22,6 +22,12 @@ class EmailAddressCreatorTest {
 	String email = helper.getEmailAddress();
 	assertFalse(email.isBlank());
     }
+    
+    @Test
+    void zeroNameLengthGivesBlankEmail() {
+	String email = helper.getEmailAddressWithANameLengthOf(0);
+	assertTrue(email.isBlank());
+    }
 
     @Test
     void addressContainsAtChar() {
