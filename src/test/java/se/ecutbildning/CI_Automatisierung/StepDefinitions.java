@@ -38,7 +38,7 @@ import io.cucumber.java.en.When;
 public class StepDefinitions {
 
     CucumberHelper helper = new CucumberHelper();
-    WebDriver newDriver = new FirefoxDriver(new FirefoxOptions().setHeadless(false));
+    WebDriver foxyDriver = new FirefoxDriver(new FirefoxOptions().setHeadless(true));
     String url;
     String theEmail;
     // d = new ChromeDriver(new ChromeOptions().setHeadless(true));
@@ -57,7 +57,7 @@ public class StepDefinitions {
 
     @And("I register as the same user")
     public void i_register_as_the_same_user() {
-	newDriver.manage().deleteAllCookies();
+	foxyDriver.manage().deleteAllCookies();
 	fillInRegistrationForm(theEmail);
     }
 
@@ -70,7 +70,7 @@ public class StepDefinitions {
     @When("I complete registration")
     public void i_complete_registration() {
 
-	Wait<WebDriver> wait = new FluentWait<WebDriver>(newDriver).withTimeout(Duration.ofSeconds(30))
+	Wait<WebDriver> wait = new FluentWait<WebDriver>(foxyDriver).withTimeout(Duration.ofSeconds(30))
 		.pollingEvery(Duration.ofMillis(250)).ignoring(ElementClickInterceptedException.class);
 
 	WebElement createAccount = wait.until(new Function<WebDriver, WebElement>() {
@@ -82,25 +82,6 @@ public class StepDefinitions {
 	createAccount.click();
     }
 
-    /*
-     * @Then("send button is disabled") public void send_button_is_disabled() {
-     * 
-     * WebElement createAccount; try { Wait<WebDriver> wait = new
-     * FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(1))
-     * .pollingEvery(Duration.ofMillis(25)).ignoring(
-     * ElementClickInterceptedException.class);
-     * 
-     * createAccount = wait.until(new Function<WebDriver, WebElement>() { public
-     * WebElement apply(WebDriver driver) { return
-     * driver.findElement(By.id("create-account")); } });
-     * wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id(
-     * "onetrust-group-container"))); System.out.println(createAccount.isEnabled());
-     * assertFalse(createAccount.isEnabled()); } catch (TimeoutException te) {
-     * te.printStackTrace(); }
-     * 
-     * }
-     */
-
     @Then("I get the message {string}")
     public void i_get_the_message(String message) {
 	WebElement signup = null;
@@ -109,18 +90,13 @@ public class StepDefinitions {
 	} catch (NoSuchElementException nse) {
 	    nse.printStackTrace();
 	}
-	/*
-	 * System.out.println(signup.getText());
-	 * System.out.println(signup.getText().equalsIgnoreCase(message));
-	 */
 	assertTrue(signup.getText().equalsIgnoreCase(message));
     }
 
     @Then("I get the error message {string}")
     public void i_get_the_error_message(String message) {
 
-	// WebElement nameTooLong = findBySelector("#av-flash-errors");
-	Wait<WebDriver> wait = new FluentWait<WebDriver>(newDriver).withTimeout(Duration.ofSeconds(30))
+	Wait<WebDriver> wait = new FluentWait<WebDriver>(foxyDriver).withTimeout(Duration.ofSeconds(30))
 		.pollingEvery(Duration.ofMillis(250)).ignoring(NoSuchElementException.class);
 
 	WebElement errorMsg = null;
@@ -135,14 +111,12 @@ public class StepDefinitions {
 	}
 	System.out.println(errorMsg.getText());
 	assertTrue(errorMsg.getText().equalsIgnoreCase(message));
-	// assertThat(findBySelector("#av-flash-errors").getText()).isEqualTo(message);
-
     }
 
     private void fillInRegistrationForm(String theEmail) {
 	url = String.format("https://login.mailchimp.com/signup/");
-	newDriver.get(url);
-	newDriver.manage().window().setSize(new Dimension(829, 854));
+	foxyDriver.get(url);
+	foxyDriver.manage().window().setSize(new Dimension(829, 854));
 	
 	if(! (theEmail.isEmpty()) ) {
 	findById("email").sendKeys(theEmail);
@@ -162,18 +136,18 @@ public class StepDefinitions {
     }
 
     private WebElement findById(String _id) {
-	return newDriver.findElement(By.id(_id));
+	return foxyDriver.findElement(By.id(_id));
     }
 
     private WebElement findBySelector(String _sel) {
-	return newDriver.findElement(By.cssSelector(_sel));
+	return foxyDriver.findElement(By.cssSelector(_sel));
     }
 
     @After
     public void tearDown() {
 	theEmail = null;
-	newDriver.manage().deleteAllCookies();
-	newDriver.close();
+	foxyDriver.manage().deleteAllCookies();
+	foxyDriver.close();
     }
 
 }

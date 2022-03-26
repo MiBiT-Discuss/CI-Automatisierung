@@ -52,8 +52,8 @@ Feature: register user
     And I register as the same user
     When I complete registration
     Then I get the error message "Please check your entry and try again."
-
-  #    Then I get the error message "Another user with this username already exists. Maybe it's your evil twin. Spooky."
+    #    Then I get the error message "Another user with this username already exists. Maybe it's your evil twin. Spooky."
+  
   Scenario: a new user forgets entering the email adress when registering
     Given I want to register as new user with a 0 long name
     When I complete registration

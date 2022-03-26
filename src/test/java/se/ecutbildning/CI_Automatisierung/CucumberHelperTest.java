@@ -111,54 +111,50 @@ class CucumberHelperTest {
 	assertTrue(actual);
     }
 
-    // ***Words***
+    // ***Names***
     @Test
-    public void wordHasRequestedMinimumLength() {
+    public void nameHasRequestedMinimumLength() {
 	// setup
-	int wordLength = 8;
+	int nameLength = 8;
 	// execute
 	String actual = helper.getEmailAddress();
 	// assert
-	assertTrue(actual.length() >= wordLength);
+	assertTrue(actual.length() >= nameLength);
     }
     
     @Test
-    public void wordHasLessThanRequestedMinimumLength() {
+    public void nameHasLessThanRequestedMinimumLength() {
 	// setup
-	int minWordLength = 5;
+	int minNameLength = 5;
 	// execute
 	String actual = "act@lookahead.com";//helper.getEmailAddress();
-	//actual = actual.substring(1, 7);
 	// assert
-	assertFalse(StringUtils.substringBefore(actual, "@").length() >= minWordLength);
-	//System.out.println("String length: " + StringUtils.substringBefore("@", actual).length());
+	assertFalse(StringUtils.substringBefore(actual, "@").length() >= minNameLength);
     }
 
     @Test
-    public void wordIsMadeOfLetters() {
+    public void nameIsMadeOfLetters() {
 	// execute
 	String actual = helper.getEmailAddress();
 	// assert
-	//actual = actual.substring(1, 8);
 	assertTrue(StringUtils.substringBefore(actual, "@").matches("\\p{L}+"));
-	// assertTrue(actual.chars().allMatch(Character::isLetter));
     }
 
     @Test
-    public void twoWordsAreNotTheSame() {
+    public void twoNamesAreNotTheSame() {
 	// execute
-	String word = helper.getEmailAddress();
-	String word2 = helper.getEmailAddress();
+	String name = helper.getEmailAddress();
+	String name2 = helper.getEmailAddress();
 	// assert
-	assertFalse(word.equals(word2));
+	assertFalse(name.equals(name2));
     }
     
     @Test
-    public void wordsOfZeroLengthRendersEmtpyString() {
+    public void namesOfZeroLengthRendersEmtpyString() {
 	// execute
-	String word = helper.getEmailAddressWithANameLengthOf(0);
+	String name = helper.getEmailAddressWithANameLengthOf(0);
 	// assert
-	assertTrue(word.equals(""));
+	assertTrue(name.equals(""));
     }
     
     // ***Passwords***
