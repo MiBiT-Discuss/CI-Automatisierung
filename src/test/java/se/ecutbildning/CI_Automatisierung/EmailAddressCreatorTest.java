@@ -3,6 +3,7 @@ package se.ecutbildning.CI_Automatisierung;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +28,18 @@ class EmailAddressCreatorTest {
     void zeroNameLengthGivesBlankEmail() {
 	String email = helper.getEmailAddressWithANameLengthOf(0);
 	assertTrue(email.isBlank());
+    }
+    
+    @Test
+    void aCertainNameLengthGivesSame() {
+	String email = helper.getEmailAddressWithANameLengthOf(30);
+	assertTrue(StringUtils.substringBefore(email, "@").length() == 30);
+    }
+    
+    @Test
+    void aCertainToolongNameLengthGivesSame() {
+	String email = helper.getEmailAddressWithANameLengthOf(130);
+	assertTrue(StringUtils.substringBefore(email, "@").length() == 130);
     }
 
     @Test
