@@ -66,6 +66,12 @@ public class AltStepDefinitions {
 	  //  theEmail = "";
 	fillInRegistrationForm(theEmail);
     }
+    
+    @And("I register as the same user")
+    public void i_register_as_the_same_user() {
+	foxyDriver.manage().deleteAllCookies();
+	fillInRegistrationForm(theEmail);
+    }
 
     @When("I complete registration")
     public void i_complete_registration() {
