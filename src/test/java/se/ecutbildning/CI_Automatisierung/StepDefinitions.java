@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.ElementClickInterceptedException;
+import org.openqa.selenium.ElementNotInteractableException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -33,26 +33,26 @@ import io.cucumber.java.en.When;
  * https://us20.admin.mailchimp.com/
  * */
 
-public class AltStepDefinitions {
+public class StepDefinitions {
 
     CucumberHelper helper = new CucumberHelper();
-    WebDriver foxyDriver = new FirefoxDriver(new FirefoxOptions().setHeadless(true));
+    WebDriver foxyDriver = new FirefoxDriver(new FirefoxOptions().setHeadless(false));
     String theEmail;
     int invalidMinimum = 101;
     // d = new ChromeDriver(new ChromeOptions().setHeadless(true));
 
     @Before
     public void setUp() {
+	foxyDriver.manage().deleteAllCookies();
 	// System.setProperty("webdriver.gecko.driver", "/usr/local/bin/geckodriver");
     }
 
     @Given("a {string} name length")
-    public void a_name_length(String lengthType) {
+    public void a_valid_name_length(String lengthType) {
 
 	if (lengthType.equalsIgnoreCase("zero"))
 	    theEmail = helper.getEmailAddressWithANameLengthOf(0);
 	else if (lengthType.equalsIgnoreCase("too long")) {
-	    System.out.println("It's " + lengthType);
 	    int nameLength = ThreadLocalRandom.current().nextInt(invalidMinimum, (invalidMinimum + 24));
 	    theEmail = helper.getEmailAddressWithANameLengthOf(nameLength);
 	} else {
@@ -61,12 +61,10 @@ public class AltStepDefinitions {
     }
 
     @And("a {string} email")
-    public void an_email(String emailStatus) {
-	//if (emailStatus == "missing")
-	  //  theEmail = "";
+    public void a_normal_email(String emailStatus) {
 	fillInRegistrationForm(theEmail);
     }
-    
+
     @And("I register as the same user")
     public void i_register_as_the_same_user() {
 	foxyDriver.manage().deleteAllCookies();
@@ -76,8 +74,7 @@ public class AltStepDefinitions {
     @When("I complete registration")
     public void i_complete_registration() {
 
-	Wait<WebDriver> wait = new FluentWait<WebDriver>(foxyDriver).withTimeout(Duration.ofSeconds(12))
-		.pollingEvery(Duration.ofMillis(250)).ignoring(ElementClickInterceptedException.class);
+	Wait<WebDriver> wait = getWait(30);
 
 	WebElement createAccount;
 	try {
@@ -105,12 +102,10 @@ public class AltStepDefinitions {
 		nse.printStackTrace();
 	    }
 	} else {
-	    Wait<WebDriver> wait = new FluentWait<WebDriver>(foxyDriver).withTimeout(Duration.ofSeconds(30))
-		    .pollingEvery(Duration.ofMillis(250)).ignoring(NoSuchElementException.class);
+	    Wait<WebDriver> wait = getWait(20);
 	    try {
 		result = wait.until(new Function<WebDriver, WebElement>() {
 		    public WebElement apply(WebDriver driver) {
-			// return driver.findElement(By.cssSelector("#av-flash-errors"));
 			return driver.findElement(By.cssSelector("#signup-form .invalid-error"));
 		    }
 		});
@@ -118,8 +113,7 @@ public class AltStepDefinitions {
 		nse.printStackTrace();
 	    }
 	}
-	// System.out.println(signup.getText());
-	// System.out.println("length =" + message.length());
+
 	String actual = result.getText().substring(0, expected.length());
 	System.out.println(actual);
 	assertTrue(actual.equalsIgnoreCase(expected));
@@ -128,7 +122,7 @@ public class AltStepDefinitions {
     private void fillInRegistrationForm(String theEmail) {
 	String url = String.format("https://login.mailchimp.com/signup/");
 	foxyDriver.get(url);
-	foxyDriver.manage().window().setSize(new Dimension(829, 854));
+	// foxyDriver.manage().window().maximize();;
 
 	if (!(theEmail.isEmpty())) {
 	    findById("email").sendKeys(theEmail);
@@ -139,8 +133,12 @@ public class AltStepDefinitions {
 	}
 	findById("new_password").sendKeys(helper.getPassword());
 
-	findById("marketing_newsletter").click();
-	findById("onetrust-reject-all-handler").click();
+	try {
+	    findById("marketing_newsletter").click();
+	    findById("onetrust-reject-all-handler").click();
+	} catch (ElementNotInteractableException nse) {
+	    nse.printStackTrace();
+	}
     }
 
     private WebElement findById(String _id) {
@@ -149,6 +147,11 @@ public class AltStepDefinitions {
 
     private WebElement findBySelector(String _sel) {
 	return foxyDriver.findElement(By.cssSelector(_sel));
+    }
+
+    private FluentWait<WebDriver> getWait(int sec) {
+	return new FluentWait<WebDriver>(foxyDriver).withTimeout(Duration.ofSeconds(sec))
+		.pollingEvery(Duration.ofMillis(250)).ignoring(ElementClickInterceptedException.class);
     }
 
     @After
