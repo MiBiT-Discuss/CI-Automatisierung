@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.ElementNotInteractableException;
 import org.openqa.selenium.NoSuchElementException;
@@ -87,7 +88,7 @@ public class StepDefinitions {
 	    createAccount.click();
 	} catch (NoSuchElementException e) {
 	    e.printStackTrace();
-	    throw new AssertionError("The requested element couldn't be found.");
+	    throw new AssertionError("The requested element \"onetrust-group-container\" couldn't be found.");
 	}
 
     }
@@ -122,7 +123,7 @@ public class StepDefinitions {
     private void fillInRegistrationForm(String theEmail) {
 	String url = String.format("https://login.mailchimp.com/signup/");
 	foxyDriver.get(url);
-	// foxyDriver.manage().window().maximize();;
+	foxyDriver.manage().window().setSize(new Dimension(1200,800));
 
 	if (!(theEmail.isEmpty())) {
 	    findById("email").sendKeys(theEmail);
@@ -133,6 +134,10 @@ public class StepDefinitions {
 	}
 	findById("new_password").sendKeys(helper.getPassword());
 
+	clickBait();
+    }
+
+    private void clickBait() {
 	try {
 	    findById("marketing_newsletter").click();
 	    findById("onetrust-reject-all-handler").click();

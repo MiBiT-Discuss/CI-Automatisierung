@@ -10,7 +10,7 @@ import org.junit.platform.suite.api.Suite;
 
 @Suite
 @IncludeEngines("cucumber")
-@SelectClasspathResource("se/ecutbildning/CI_Automatisierung")
+@SelectClasspathResource("se/ecutbildning/CI_Automatisierung/features")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "junit")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "se.ecutbildning.CI_Automatisierung")
 
