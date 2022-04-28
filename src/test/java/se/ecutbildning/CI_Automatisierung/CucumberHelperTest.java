@@ -18,7 +18,7 @@ class CucumberHelperTest {
 
     @BeforeAll
     public static void createObjects() {
-	helper = new CucumberHelper();
+	helper = CucumberHelper.getThisHelperInstance();
     }
 
     @Test

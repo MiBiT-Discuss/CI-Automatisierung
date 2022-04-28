@@ -28,6 +28,7 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.github.bonigarcia.wdm.WebDriverManager;
 
 /*
  * https://us20.admin.mailchimp.com/signup/setup/
@@ -36,134 +37,77 @@ import io.cucumber.java.en.When;
 
 public class StepDefinitions {
 
-    CucumberHelper helper = new CucumberHelper();
-    WebDriver foxyDriver = new FirefoxDriver(new FirefoxOptions().setHeadless(false));
+    CucumberHelper helper = CucumberHelper.getThisHelperInstance();
+    FormPagePF formPage;
+    // WebDriver currentDriver;
     String theEmail;
-    int invalidMinimum = 101;
     // d = new ChromeDriver(new ChromeOptions().setHeadless(true));
 
     @Before
     public void setUp() {
-	foxyDriver.manage().deleteAllCookies();
+	/*
+	 * WebDriverManager.firefoxdriver().setup(); currentDriver = new
+	 * FirefoxDriver(new FirefoxOptions().setHeadless(false));
+	 * currentDriver.manage().deleteAllCookies(); String url =
+	 * String.format("https://login.mailchimp.com/signup/");
+	 */
+	formPage = new FormPagePF();
+	formPage.openBrowser(GLOBAL_DATA.BROWSER, GLOBAL_DATA.OS, GLOBAL_DATA.ENVIRONMENT);
+	formPage.navigateToURL();
+	// currentDriver.get(url);
+	// currentDriver.manage().window().setSize(new Dimension(1200, 1200));
 	// System.setProperty("webdriver.gecko.driver", "/usr/local/bin/geckodriver");
     }
 
-    @Given("a {string} name length")
-    public void a_valid_name_length(String lengthType) {
+    /*
+     * @Given("a {string} name length") public void a_valid_name_length(String
+     * lengthType) {
+     * 
+     * }
+     */
 
-	if (lengthType.equalsIgnoreCase("zero"))
+    @Given("a {string} email")
+    public void a_normal_email(String emailStatus) {
+
+	if (emailStatus.equalsIgnoreCase("missing"))
 	    theEmail = helper.getEmailAddressWithANameLengthOf(0);
-	else if (lengthType.equalsIgnoreCase("too long")) {
-	    int nameLength = ThreadLocalRandom.current().nextInt(invalidMinimum, (invalidMinimum + 24));
+	else if (emailStatus.equalsIgnoreCase("too long")) {
+	    int nameLength = ThreadLocalRandom.current().nextInt(GLOBAL_DATA.INVALIDMINUMUM,
+		    (GLOBAL_DATA.INVALIDMINUMUM + 24));
 	    theEmail = helper.getEmailAddressWithANameLengthOf(nameLength);
-	} else {
+	} else { // if emailStatus is "normal"
 	    theEmail = helper.getEmailAddress();
 	}
-    }
-
-    @And("a {string} email")
-    public void a_normal_email(String emailStatus) {
-	fillInRegistrationForm(theEmail);
+	formPage.fillInRegistrationForm(theEmail);
     }
 
     @And("I register as the same user")
     public void i_register_as_the_same_user() {
-	foxyDriver.manage().deleteAllCookies();
-	fillInRegistrationForm(theEmail);
+	SingletonWebDriver.getInstance().getWebDriver().manage().deleteAllCookies();
+	formPage.navigateToURL();
+	formPage.fillInRegistrationForm(theEmail);
     }
 
     @When("I complete registration")
     public void i_complete_registration() {
 
-	Wait<WebDriver> wait = getWait(30);
-
-	WebElement createAccount;
-	try {
-	    createAccount = wait.until(new Function<WebDriver, WebElement>() {
-		public WebElement apply(WebDriver driver) {
-		    return driver.findElement(By.id("create-account"));
-		}
-	    });
-	    wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("onetrust-group-container")));
-	    createAccount.click();
-	} catch (NoSuchElementException e) {
-	    e.printStackTrace();
-	    throw new AssertionError("The requested element \"onetrust-group-container\" couldn't be found.");
-	}
+	formPage.completeRegistration();
 
     }
 
     @Then("I get the {string} message")
     public void i_get_the_message(String expected) {
-	WebElement result = null;
-	if (expected.equalsIgnoreCase("Check your email")) {
-	    try {
-		result = findBySelector("#signup-content h1");
-	    } catch (NoSuchElementException nse) {
-		nse.printStackTrace();
-	    }
-	} else {
-	    Wait<WebDriver> wait = getWait(20);
-	    try {
-		result = wait.until(new Function<WebDriver, WebElement>() {
-		    public WebElement apply(WebDriver driver) {
-			return driver.findElement(By.cssSelector("#signup-form .invalid-error"));
-		    }
-		});
-	    } catch (NoSuchElementException nse) {
-		nse.printStackTrace();
-	    }
-	}
 
-	String actual = result.getText().substring(0, expected.length());
-	System.out.println(actual);
+	String actual = formPage.getElement(expected).getText().substring(0, expected.length());
+	// System.out.println(actual);
 	assertTrue(actual.equalsIgnoreCase(expected));
-    }
-
-    private void fillInRegistrationForm(String theEmail) {
-	String url = String.format("https://login.mailchimp.com/signup/");
-	foxyDriver.get(url);
-	foxyDriver.manage().window().setSize(new Dimension(1200,800));
-
-	if (!(theEmail.isEmpty())) {
-	    findById("email").sendKeys(theEmail);
-	    findById("new_username").sendKeys(StringUtils.substringBefore(theEmail, "@"));
-	} else {
-	    findById("new_username").sendKeys(Stream.generate(new NonSensicalWordGenerator())
-		    .limit(ThreadLocalRandom.current().nextInt(5, 13)).collect(Collectors.joining()));
-	}
-	findById("new_password").sendKeys(helper.getPassword());
-
-	clickBait();
-    }
-
-    private void clickBait() {
-	try {
-	    findById("marketing_newsletter").click();
-	    findById("onetrust-reject-all-handler").click();
-	} catch (ElementNotInteractableException nse) {
-	    nse.printStackTrace();
-	}
-    }
-
-    private WebElement findById(String _id) {
-	return foxyDriver.findElement(By.id(_id));
-    }
-
-    private WebElement findBySelector(String _sel) {
-	return foxyDriver.findElement(By.cssSelector(_sel));
-    }
-
-    private FluentWait<WebDriver> getWait(int sec) {
-	return new FluentWait<WebDriver>(foxyDriver).withTimeout(Duration.ofSeconds(sec))
-		.pollingEvery(Duration.ofMillis(250)).ignoring(ElementClickInterceptedException.class);
     }
 
     @After
     public void tearDown() {
 	theEmail = null;
-	foxyDriver.manage().deleteAllCookies();
-	foxyDriver.close();
+	SingletonWebDriver.getInstance().getWebDriver().manage().deleteAllCookies();
+	SingletonWebDriver.getInstance().getWebDriver().quit();
     }
 
 }
