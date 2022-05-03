@@ -18,7 +18,7 @@ class CucumberHelperTest {
 
     @BeforeAll
     public static void createObjects() {
-	helper = new CucumberHelper();
+	helper = CucumberHelper.getThisHelperInstance();
     }
 
     @Test
@@ -177,7 +177,7 @@ class CucumberHelperTest {
 	assertTrue(validatePassword(password));	
     }
     
-    @Test
+    @RepeatedTest(100)
     public void generatedPasswordContainsUpperCase() throws TooShortPasswordException {
 	// execute
 	String password = helper.getPassword() ;

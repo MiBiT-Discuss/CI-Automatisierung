@@ -3,8 +3,17 @@ package se.ecutbildning.CI_Automatisierung;
 
 public class CucumberHelper {
     
+    private static CucumberHelper thisHelper = null;
     EmailAddressCreator emailCreator = new EmailAddressCreator();
     
+    
+    
+    public static CucumberHelper getThisHelperInstance() {
+	if(thisHelper == null)
+	    thisHelper = new CucumberHelper();
+        return thisHelper;
+    }
+
     public String getEmailAddress() {
 	return emailCreator.getEmailAddress();
     }

@@ -1,7 +1,6 @@
 package se.ecutbildning.CI_Automatisierung;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.concurrent.ThreadLocalRandom;
@@ -13,8 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.ElementClickInterceptedException;
+import org.openqa.selenium.ElementNotInteractableException;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -29,6 +28,7 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.github.bonigarcia.wdm.WebDriverManager;
 
 /*
  * https://us20.admin.mailchimp.com/signup/setup/
@@ -37,117 +37,77 @@ import io.cucumber.java.en.When;
 
 public class StepDefinitions {
 
-    CucumberHelper helper = new CucumberHelper();
-    WebDriver foxyDriver = new FirefoxDriver(new FirefoxOptions().setHeadless(true));
-    String url;
+    CucumberHelper helper = CucumberHelper.getThisHelperInstance();
+    FormPagePF formPage;
+    // WebDriver currentDriver;
     String theEmail;
     // d = new ChromeDriver(new ChromeOptions().setHeadless(true));
 
     @Before
     public void setUp() {
-	//System.setProperty("webdriver.gecko.driver", "/usr/local/bin/geckodriver");
+	/*
+	 * WebDriverManager.firefoxdriver().setup(); currentDriver = new
+	 * FirefoxDriver(new FirefoxOptions().setHeadless(false));
+	 * currentDriver.manage().deleteAllCookies(); String url =
+	 * String.format("https://login.mailchimp.com/signup/");
+	 */
+	formPage = new FormPagePF();
+	formPage.openBrowser(GLOBAL_DATA.BROWSER, GLOBAL_DATA.OS, GLOBAL_DATA.ENVIRONMENT);
+	formPage.navigateToURL();
+	// currentDriver.get(url);
+	// currentDriver.manage().window().setSize(new Dimension(1200, 1200));
+	// System.setProperty("webdriver.gecko.driver", "/usr/local/bin/geckodriver");
     }
 
-    @Given("I register as new user")
-    public void i_register_as_new_user() throws TooShortPasswordException {
+    /*
+     * @Given("a {string} name length") public void a_valid_name_length(String
+     * lengthType) {
+     * 
+     * }
+     */
 
-	theEmail = helper.getEmailAddress();
-	fillInRegistrationForm(theEmail);
+    @Given("a {string} email")
+    public void a_normal_email(String emailStatus) {
+
+	if (emailStatus.equalsIgnoreCase("missing"))
+	    theEmail = helper.getEmailAddressWithANameLengthOf(0);
+	else if (emailStatus.equalsIgnoreCase("too long")) {
+	    int nameLength = ThreadLocalRandom.current().nextInt(GLOBAL_DATA.INVALIDMINUMUM,
+		    (GLOBAL_DATA.INVALIDMINUMUM + 24));
+	    theEmail = helper.getEmailAddressWithANameLengthOf(nameLength);
+	} else { // if emailStatus is "normal"
+	    theEmail = helper.getEmailAddress();
+	}
+	formPage.fillInRegistrationForm(theEmail);
     }
 
     @And("I register as the same user")
     public void i_register_as_the_same_user() {
-	foxyDriver.manage().deleteAllCookies();
-	fillInRegistrationForm(theEmail);
-    }
-
-    @Given("I want to register as new user with a {int} long name")
-    public void i_want_to_register_as_new_user_with_a_length_long_name(int nameLength) {
-	String theEmail = helper.getEmailAddressWithANameLengthOf(nameLength);
-	fillInRegistrationForm(theEmail);
+	SingletonWebDriver.getInstance().getWebDriver().manage().deleteAllCookies();
+	formPage.navigateToURL();
+	formPage.fillInRegistrationForm(theEmail);
     }
 
     @When("I complete registration")
     public void i_complete_registration() {
 
-	Wait<WebDriver> wait = new FluentWait<WebDriver>(foxyDriver).withTimeout(Duration.ofSeconds(30))
-		.pollingEvery(Duration.ofMillis(250)).ignoring(ElementClickInterceptedException.class);
+	formPage.completeRegistration();
 
-	WebElement createAccount = wait.until(new Function<WebDriver, WebElement>() {
-	    public WebElement apply(WebDriver driver) {
-		return driver.findElement(By.id("create-account"));
-	    }
-	});
-	wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("onetrust-group-container")));
-	createAccount.click();
     }
 
-    @Then("I get the message {string}")
-    public void i_get_the_message(String message) {
-	WebElement signup = null;
-	try {
-	    signup = findBySelector("#signup-content h1");
-	} catch (NoSuchElementException nse) {
-	    nse.printStackTrace();
-	}
-	assertTrue(signup.getText().equalsIgnoreCase(message));
-    }
+    @Then("I get the {string} message")
+    public void i_get_the_message(String expected) {
 
-    @Then("I get the error message {string}")
-    public void i_get_the_error_message(String message) {
-
-	Wait<WebDriver> wait = new FluentWait<WebDriver>(foxyDriver).withTimeout(Duration.ofSeconds(30))
-		.pollingEvery(Duration.ofMillis(250)).ignoring(NoSuchElementException.class);
-
-	WebElement errorMsg = null;
-	try {
-	    errorMsg = wait.until(new Function<WebDriver, WebElement>() {
-		public WebElement apply(WebDriver driver) {
-		    return driver.findElement(By.cssSelector("#av-flash-errors"));
-		}
-	    });
-	} catch (NoSuchElementException nse) {
-	    nse.printStackTrace();
-	}
-	System.out.println(errorMsg.getText());
-	assertTrue(errorMsg.getText().equalsIgnoreCase(message));
-    }
-
-    private void fillInRegistrationForm(String theEmail) {
-	url = String.format("https://login.mailchimp.com/signup/");
-	foxyDriver.get(url);
-	foxyDriver.manage().window().setSize(new Dimension(829, 854));
-	
-	if(! (theEmail.isEmpty()) ) {
-	findById("email").sendKeys(theEmail);
-	findById("new_username").sendKeys(StringUtils.substringBefore(theEmail, "@"));
-	} else {
-	    findById("new_username").sendKeys(
-		    			Stream.generate(new NonSensicalWordGenerator())
-		    			.limit(ThreadLocalRandom.current()
-		    			.nextInt(5, 13))
-		    			.collect(Collectors.joining()
-		    			));
-	}
-	findById("new_password").sendKeys(helper.getPassword());
-
-	findById("marketing_newsletter").click();
-	findById("onetrust-reject-all-handler").click();
-    }
-
-    private WebElement findById(String _id) {
-	return foxyDriver.findElement(By.id(_id));
-    }
-
-    private WebElement findBySelector(String _sel) {
-	return foxyDriver.findElement(By.cssSelector(_sel));
+	String actual = formPage.getElement(expected).getText().substring(0, expected.length());
+	// System.out.println(actual);
+	assertTrue(actual.equalsIgnoreCase(expected));
     }
 
     @After
     public void tearDown() {
 	theEmail = null;
-	foxyDriver.manage().deleteAllCookies();
-	foxyDriver.close();
+	SingletonWebDriver.getInstance().getWebDriver().manage().deleteAllCookies();
+	SingletonWebDriver.getInstance().getWebDriver().quit();
     }
 
 }
